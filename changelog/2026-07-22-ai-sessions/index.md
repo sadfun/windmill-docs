@@ -1,13 +1,13 @@
 ---
 slug: ai-sessions
-title: AI sessions (beta)
+title: AI sessions
 tags: ['AI']
 version: v1.766.0
 video: https://www.youtube.com/watch?v=yjNHwHBkbyE
-description: AI sessions are now in beta and enabled by default. Each session ties an AI chat to a workspace or fork with a live preview panel; the AI builds scripts, flows and apps as drafts you review in a unified diff drawer and deploy. Run many sessions in parallel; a banner switches back to the legacy chat.
+description: AI sessions are enabled by default and replace the side panel AI chat. Each session ties an AI chat to a workspace or fork with a live preview panel; the AI builds scripts, flows and apps as drafts you review in a unified diff drawer and deploy. Run many sessions in parallel.
 features:
   [
-    'Enabled by default during the beta: a banner under the session chat switches back to the legacy side panel chat (stored per browser), and a matching banner in the legacy chat reactivates sessions. Operators keep the legacy chat.',
+    'Enabled by default, replacing the side panel AI chat. Operators keep the side panel chat.',
     'Each session is tied to a workspace or fork, picked before the first message; forks are only created when the conversation actually starts.',
     'The preview panel opens edited items as live editors and workspace pages (runs, schedules, settings) as tabs, refreshing only what the AI touched.',
     'A chat-scoped edits bar and unified diff drawer track what the conversation changed, with per-item deploy and discard, and fork promotion via the compare page.',

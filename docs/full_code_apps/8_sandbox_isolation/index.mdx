@@ -68,7 +68,7 @@ The feature is in alpha, so after turning it on, open the app from its public UR
 A separate opt-in, for [full-code apps](../index.mdx) only and only once isolation is on.
 A sandboxed bundle can no longer reach the API on the viewer's session, so if its frontend code needs the API, give it a credential of its own.
 
-Toggle the capabilities individually: running scripts and flows, reading jobs and results, reading the viewer's identity, reading [resources](../../core_concepts/3_resources_and_types/index.mdx) and reading [variables](../../core_concepts/2_variables_and_secrets/index.mdx).
+Toggle the capabilities individually: running scripts and flows, reading jobs and results, reading the viewer's identity, reading [resources](../../core_concepts/3_resources_and_types/index.mdx), reading [variables](../../core_concepts/2_variables_and_secrets/index.mdx), and reading or managing the viewer's [flow chats](../../flows/26_flow_as_chat.mdx#chat-sdk-for-your-own-frontend).
 The token is minted for the viewer rather than the publisher and carries only what you toggled.
 It is a different credential from the one a sandboxed low-code app gets, and a broader one where it counts: running scripts and flows covers anything that viewer could run, and the resource and variable scopes expose credential values.
 

@@ -76,12 +76,116 @@ When a chat flow uses [AI agent steps](../core_concepts/54_ai_agents/index.mdx) 
 
 This makes it easy for end-users to see what the agent did on their behalf, and for developers to debug multi-step agent runs.
 
+## Chat SDK for your own frontend
+
+The chat interface above lives in Windmill.
+To put the same chat in your own product, the [`windmill-chat`](https://www.npmjs.com/package/windmill-chat) npm package runs a deployed chat flow from any frontend, including a [full-code app](../full_code_apps/index.mdx).
+It is headless: it starts a run per message, follows the answer as it streams, keeps the conversation history, and hands you state to render with your own components.
+
+```bash
+npm install windmill-chat
+```
+
+The package has no runtime dependencies and one entry point per UI stack:
+
+| You build the UI with | Import | You get |
+| --- | --- | --- |
+| [Vercel AI SDK](https://ai-sdk.dev/) `useChat`, AI Elements | `windmill-chat/ai-sdk` | A `ChatTransport` to pass to `useChat({ transport })` |
+| [assistant-ui](https://www.assistant-ui.com/) | `windmill-chat/assistant-ui` | A runtime for `AssistantRuntimeProvider`, with conversations as threads |
+| Your own React components | `windmill-chat/react` | The `useWindmillChat` hook, with messages, status and actions |
+| Another framework | `windmill-chat` | `createChat`, a store you subscribe to (it follows the Svelte store contract) |
+
+With the React hook, a minimal chat looks like this:
+
+```tsx
+import { useState } from 'react';
+import { useWindmillChat } from 'windmill-chat/react';
+
+export function Support() {
+	const chat = useWindmillChat({
+		baseUrl: 'https://app.windmill.dev',
+		workspace: 'acme',
+		flowPath: 'f/support/assistant',
+		// called before every request, so your backend can return a short-lived token
+		token: () => fetch('/api/windmill-token').then((r) => r.text())
+	});
+	const [draft, setDraft] = useState('');
+
+	return (
+		<div>
+			{chat.messages.map((m) => (
+				<p key={m.id} data-role={m.role} data-pending={m.pending}>
+					{m.content}
+				</p>
+			))}
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					chat.sendMessage(draft);
+					setDraft('');
+				}}
+			>
+				<input value={draft} onChange={(e) => setDraft(e.target.value)} />
+				<button disabled={chat.status !== 'idle' && chat.status !== 'error'}>Send</button>
+				{chat.status === 'streaming' && (
+					<button type="button" onClick={chat.stop}>
+						Stop
+					</button>
+				)}
+			</form>
+		</div>
+	);
+}
+```
+
+Messages have a `role` of `user`, `assistant`, `tool` or `system`.
+Tool calls of an [AI agent](../core_concepts/54_ai_agents/index.mdx) step arrive as `tool` messages whose status moves from `running` to `success` or `error`.
+A flow that fails still completes the turn, with its error as an assistant message marked `success: false`.
+
+The [package README](https://github.com/windmill-labs/windmill/tree/main/chat-sdk#readme) is the full reference for the options, the state and the methods of each entry point.
+
+### Inside a full-code app
+
+In a full-code app, pass only `flowPath`: the chat runs as the viewer, against the Windmill instance the app is served from.
+
+```tsx
+const chat = useWindmillChat({ flowPath: 'f/support/assistant' });
+```
+
+Viewers need permission to run the flow.
+With [sandbox isolation](../full_code_apps/8_sandbox_isolation/index.mdx#frontend-api-access) on, turn on "Run scripts and flows" in the app's frontend API access, plus "Manage your flow chats" for server-side history.
+Under `wmill app dev` there is no viewer session, so pass `baseUrl`, `workspace` and `token` explicitly during development.
+
+### Tokens and conversation history
+
+Outside Windmill, the chat authenticates with a [user token](../core_concepts/59_user_tokens/index.mdx).
+Anything a browser holds can be read by its user, so [scope the token](../core_concepts/59_user_tokens/index.mdx#token-scopes) to what the chat needs.
+The `history` option decides where conversations are kept, and the right value depends on who the token belongs to:
+
+| Setup | Token scopes | History |
+| --- | --- | --- |
+| Public site, one token shared by every visitor | `jobs:run:flows:f/support/assistant` | `local` (the default with a token): conversations stay in the browser's `localStorage` |
+| One token per user, minted by your backend | The above plus `flow_conversations:write` | `server`: the [conversations](#conversations) Windmill stores for that user |
+| Full-code app, or another page served by Windmill | None, the viewer's session is used | `server` (the default without a token) |
+
+Server history is keyed by the Windmill user, so do not combine it with a shared token: every visitor would see the others' conversations.
+`history: 'none'` keeps nothing beyond the page.
+
+The token's user must be allowed to run the flow.
+Anyone holding the token can run the flow with inputs of their choosing, so treat the message and the other flow inputs as untrusted in a flow exposed this way.
+
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
 		color="teal"
 		title="AI agents"
 		description="Integrate AI agent steps directly into your Windmill flows."
 		href="/docs/core_concepts/ai_agents"
+	/>
+	<DocCard
+		color="teal"
+		title="Full-code apps"
+		description="Build custom frontends with React or Svelte, connected to Windmill backend runnables."
+		href="/docs/full_code_apps"
 	/>
 	<DocCard
 		color="teal"
