@@ -508,6 +508,24 @@ INSERT INTO demo VALUES (?, ?)
 
 "name1", "name2" being the names of the arguments, "default arg" the optional default value and `varchar` & `int` the types.
 
+To take a list, add `[]` to the element type, as in `(varchar[])` or `(int[])`, or use `(array)` for a list of any type.
+A default value is written as a JSON array, for example `-- ? ids (int[]) = [1, 2]`.
+Snowflake cannot bind an array directly, so the list reaches the query as JSON text: read it with `PARSE_JSON(?)`, and cast it to `ARRAY` where a function expects one.
+
+```sql
+-- ? groups (varchar[])
+SELECT o.* FROM orders o
+WHERE ARRAY_CONTAINS(o.owner_group::VARIANT, PARSE_JSON(?)::ARRAY);
+```
+
+To join on the elements instead, expand the list with `FLATTEN`:
+
+```sql
+-- ? groups (varchar[])
+SELECT o.* FROM orders o
+JOIN TABLE(FLATTEN(input => PARSE_JSON(?))) g ON g.value::STRING = o.owner_group;
+```
+
 Database resource can be specified from the UI or directly within script with a line `-- database resource_path`.
 
 <video
