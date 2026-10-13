@@ -64,6 +64,9 @@ ORDER BY created_at DESC
 LIMIT $2;
 ```
 
+On a data table under [roles](../../core_concepts/11_persistent_storage/data_tables.mdx#permissions), a runnable that names no role connects with the roles of the person using the app, even though it runs as the publisher.
+[Row-level security policies](../../core_concepts/11_persistent_storage/data_tables.mdx#row-level-security-per-viewer) can then return different rows to each viewer.
+
 ## Schema setup
 
 When creating a new app with `wmill app new`, the CLI can optionally create a dedicated schema for your app's tables. SQL migration files are placed in `sql_to_apply/`:

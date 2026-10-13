@@ -613,7 +613,7 @@ What the app's own browser-side code can reach in the viewer's browser is a sepa
 
 ### Identifying the app viewer
 
-Because runnables execute on behalf of the publisher, the `WM_EMAIL` [contextual variable](../core_concepts/47_environment_variables/index.mdx#contextual-variables) holds the publisher's email, not the viewer's. The viewer's email is exposed separately as `WM_END_USER_EMAIL`, which is set on every runnable an app triggers - including the steps of a flow it runs - and is an empty string for runs that did not come from an app.
+Because runnables execute on behalf of the publisher, the `WM_EMAIL` [contextual variable](../core_concepts/47_environment_variables/index.mdx#contextual-variables) holds the publisher's email, not the viewer's. The viewer's email is exposed separately as `WM_END_USER_EMAIL`, which is set on every runnable an app triggers - including the steps of a flow it runs. Outside an app it holds the email of whoever started a script or flow directly, and is an empty string for runs started by a schedule or a trigger.
 
 The idiom for "the email of whoever is running this" is therefore:
 
