@@ -386,7 +386,7 @@ Now all users can access the `public` schema in the Database Manager.
 
 ![Restricted user view](./datatable_images/dbm_restricted_view.png 'Restricted user view')
 
-Because `everyone` is now the default role, a call to `wmill.datatable('your_datatable')` that names no role connects as `everyone`, plus `analytics` when the person running it is in `analytics_f`.
+Because `everyone` is now the default role, a call to `wmill.datatable('your_datatable')` that names no role connects as `everyone`, plus `analytics` when the identity the job runs as is in `analytics_f`.
 See [connections that name no role](#connections-that-name-no-role).
 
 #### Step 6: let users create their own schemas
@@ -401,39 +401,37 @@ Grant `CREATE` on the database to the `everyone` role so they can create new sch
 A connection names a role with `{ role: '...' }` in TypeScript, `role=` in Python, or `?role=` in a `datatable://` reference.
 It then holds that role alone, whoever runs the job.
 
-A connection that names none is resolved from the default role of the data table, chosen in the Default column of the Roles drawer:
+A connection that names none is resolved from the default role of the data table, chosen in the Default column of the Roles drawer, and the roles of one identity:
 
 | Default role | A connection that names no role holds |
 | --- | --- |
-| `admin` (until you change it) | `admin`, when the job runs as a workspace admin or as a tenant of `admin`. The viewer's roles are not added |
-| Another role | That role, when the identity the job runs as may use it, plus every role the job's viewer is a tenant of |
-| No default role | Only the roles the job's viewer is a tenant of |
+| `admin` (until you change it) | `admin`, when the identity is a workspace admin or a tenant of `admin`. No other role is added |
+| Another role | That role, when the identity may use it, plus every role the identity is a tenant of |
+| No default role | Only the roles the identity is a tenant of |
 
 A connection left with no role at all is refused with an error instead of returning no rows.
 
-The viewer is the person a job runs for, which is not always the identity it runs as.
-Windmill records it when the job starts, and nothing in the script can change it:
+The identity is the one the job runs as, the same one its [resources](../3_resources_and_types/index.mdx) and [variables](../2_variables_and_secrets/index.mdx) are read with:
 
-- In an [app](../../full_code_apps/4_data_tables/index.mdx), the logged-in person using it, even though the runnables execute as the publisher.
 - For a script or flow run directly or tested in the editor, whoever started it.
-- For a job started by another job, such as a flow step, the viewer of that job.
-- Nobody for a run started by a schedule or a trigger, a tool job of an AI agent step, or a viewer of a public app who is not logged in.
+- For an [app](../../apps/3_app-runnable-panel.mdx#policy) in publisher mode, the publisher, so every viewer of the app reads through the publisher's roles.
+- For a run started by a schedule or a trigger, its owner.
+- For a job started by another job, such as a flow step, the identity of that job.
 
-This is the person [`WM_END_USER_EMAIL`](../../apps/3_app-runnable-panel.mdx#identifying-the-app-viewer) reports.
-A job with no viewer, or whose viewer is not a member of the workspace, holds the default role alone, so it needs a default role it may use or a named role.
+An inline runnable of a [full-code app](../../full_code_apps/index.mdx) can instead [read data as the viewer](../../full_code_apps/2_backend_runnables/index.mdx#read-data-as-the-viewer), the logged-in person using the app.
+Its connections that name no role then hold the viewer's roles, by the same rules.
+A viewer of a [public app](../../apps/8_public_apps.mdx) who is not logged in has no roles, and such a runnable is refused for them.
+Such a runnable runs the publisher's code with the viewer's reach into the data table, the same trust as an app in viewer execution mode.
 
-Only tenant lists count toward the viewer's roles.
+Only tenant lists count toward the identity's roles.
 A workspace admin can name any role, but being an admin adds no role to a connection that names none, and `admin` is never added.
-With a default role other than `admin`, an admin who opens an app therefore sees the rows of the roles they were assigned, not every row.
+With a default role other than `admin`, an admin who runs a script therefore sees the rows of the roles they were assigned, not every row.
 
-A job that names no role runs its author's code with the viewer's roles, the same trust as an app in viewer execution mode.
-Whoever can deploy an app or a script that other people run can read through the non-`admin` roles of those people.
-
-[Cached results](../24_caching/index.md) are kept per viewer, so one viewer is never served rows cached for another.
+[Cached results](../24_caching/index.md) are kept per identity and per viewer, so a result read through one person's roles is never served to another.
 
 #### Row-level security per viewer
 
-With a default role other than `admin`, Postgres row-level security can return different rows to each viewer of an app, with nothing written in the runnable.
+With a default role other than `admin`, Postgres row-level security can return different rows to each viewer of an app whose runnable [reads data as the viewer](../../full_code_apps/2_backend_runnables/index.mdx#read-data-as-the-viewer), with nothing written in the runnable's code.
 
 Say `app_user` is the default role with everyone as tenant, and `sales_emea` and `sales_amer` are assigned to the people covering each region.
 
@@ -451,7 +449,7 @@ CREATE POLICY amer ON orders FOR SELECT
   USING (region = 'amer' AND pg_has_role(current_user, 'sales_amer', 'member'));
 ```
 
-The runnable names no role:
+The runnable names no role, and reads data as the viewer:
 
 ```ts
 import * as wmill from 'windmill-client';
@@ -470,7 +468,7 @@ A connection that holds several roles logs in as a user Windmill manages for tha
 `pg_has_role` is also true for the role's own login, so the same policy serves a connection that names the role.
 A policy names its role as text, so renaming the role in the instance catalog breaks the policy.
 
-A table created over a connection that holds several roles belongs to that combination of roles alone, and no other role or viewer can reach it.
+A table created over a connection that holds several roles belongs to that combination of roles alone, and no other role or identity can reach it.
 Before creating an object, name a role or run `SET ROLE <role>`.
 
 ### Tenant patterns
@@ -517,7 +515,7 @@ Migrations without a role annotation run as `admin`.
 When creating a [full-code app](../../full_code_apps/4_data_tables/index.mdx) backed by a data table, the template picker includes a role selector.
 The selected role applies to all data table queries, including those generated by the copilot.
 It is recorded under `data.roles` in `raw_app.yaml`, and it pins the app to that one role for every viewer.
-For rows that differ per viewer, remove that entry and call `wmill.datatable()` with no role, see [row-level security per viewer](#row-level-security-per-viewer).
+For rows that differ per viewer, remove that entry, call `wmill.datatable()` with no role and let the runnable read data as the viewer, see [row-level security per viewer](#row-level-security-per-viewer).
 
 ### Limitations
 

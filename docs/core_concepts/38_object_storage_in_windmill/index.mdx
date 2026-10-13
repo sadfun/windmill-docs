@@ -68,6 +68,8 @@ You can use interpolated variables like `{username}`, which will be replaced by 
 
 Admins can always access everything.
 
+The rules are checked against the identity a job runs as, the publisher for an [app](../../apps/3_app-runnable-panel.mdx#policy) in publisher mode, unless an inline runnable of a full-code app [reads data as the viewer](../../full_code_apps/2_backend_runnables/index.mdx#read-data-as-the-viewer).
+
 All interactions with the S3 bucket are proxied through Windmill's backend. We guarantee that users who don't have access to the resource won't be able to retrieve any of its details (access key and secret key), unless the lecacy public mode is enabled (see below).
 
 :::note Legacy

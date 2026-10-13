@@ -100,6 +100,30 @@ Field types:
 | `ctx` | A value from the app context (e.g., user email) |
 | `user` | Provided by the frontend at call time |
 
+## Read data as the viewer
+
+A backend runnable reads data as the identity the app runs as, the publisher in publisher [execution mode](../7_deployment/index.mdx), the same for every viewer.
+An inline runnable can instead read data as the logged-in person using the app, so that what it returns differs per viewer:
+
+- A [data table](../4_data_tables/index.mdx) connection that names no role holds the viewer's [roles](../../core_concepts/11_persistent_storage/data_tables.mdx#connections-that-name-no-role) instead of the app's, so [row-level security](../../core_concepts/11_persistent_storage/data_tables.mdx#row-level-security-per-viewer) answers per viewer.
+- [Object storage advanced permission rules](../../core_concepts/38_object_storage_in_windmill/index.mdx#resources-permissions) are checked against the viewer, so per-user paths such as `u/{username}/**` resolve to the viewer's.
+
+Resources, variables and everything else the runnable reaches stay the app's.
+A viewer who is not logged in, on a [public app](../../apps/8_public_apps.mdx), is refused.
+Both data table roles and object storage permission rules are [Enterprise Edition](/pricing) features, and data table roles are only available on self-hosted instances.
+
+It applies to inline runnables only: a path-based runnable is someone else's script, and always reads as the app.
+In the app editor, turn on Read data as the viewer from the button in the inline runnable's toolbar, shown once its code reads a data table or object storage.
+With the [CLI](../5_cli_workflow/index.mdx), set it in the runnable's YAML file:
+
+```yaml
+# backend/get_orders.yaml
+type: inline
+viewer_data_access: true
+```
+
+The [AI chat](../../core_concepts/22_ai_generation/index.mdx) can also turn it on when it creates or edits a runnable.
+
 ## Supported languages
 
 Backend runnables support all [Windmill script languages](../../getting_started/0_scripts_quickstart/index.mdx):

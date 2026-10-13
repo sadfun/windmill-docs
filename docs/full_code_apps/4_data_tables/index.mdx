@@ -64,8 +64,8 @@ ORDER BY created_at DESC
 LIMIT $2;
 ```
 
-On a data table under [roles](../../core_concepts/11_persistent_storage/data_tables.mdx#permissions), a runnable that names no role connects with the roles of the person using the app, even though it runs as the publisher.
-[Row-level security policies](../../core_concepts/11_persistent_storage/data_tables.mdx#row-level-security-per-viewer) can then return different rows to each viewer.
+On a data table under [roles](../../core_concepts/11_persistent_storage/data_tables.mdx#permissions), a runnable that names no role connects with the roles of the identity the app runs as, the publisher in publisher mode.
+An inline runnable that [reads data as the viewer](../2_backend_runnables/index.mdx#read-data-as-the-viewer) connects with the roles of the person using the app instead, so [row-level security policies](../../core_concepts/11_persistent_storage/data_tables.mdx#row-level-security-per-viewer) can return different rows to each viewer.
 
 ## Schema setup
 

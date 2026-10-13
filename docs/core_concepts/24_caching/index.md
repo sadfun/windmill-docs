@@ -8,8 +8,8 @@ Caching is used to cache the results of a script, flow, flow step or app inline 
 
 When you configure caching, Windmill stores the result in a cache for the duration you specify. If the same runnable is re-triggered with the same input within this duration, Windmill instantly retrieves the cached result instead of re-computing it.
 
-A run started by a person, directly or through an [app](../../apps/3_app-runnable-panel.mdx#identifying-the-app-viewer), only reuses a result cached for that same person.
-Runs started by a schedule, a trigger or an anonymous app viewer share one entry.
+A run only reuses a result cached for the same identity it runs as and the same person it was started for, directly or through an [app](../../apps/3_app-runnable-panel.mdx#identifying-the-app-viewer).
+Runs started by schedules or triggers share an entry only when they run as the same user.
 
 This feature can significantly improve the performance of your scripts & flows, especially for steps that are computationally demanding or dependent on external resources, such as APIs or databases.
 
