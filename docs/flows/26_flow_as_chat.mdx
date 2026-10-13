@@ -79,27 +79,29 @@ This makes it easy for end-users to see what the agent did on their behalf, and 
 ## Chat SDK for your own frontend
 
 The chat interface above lives in Windmill.
-To put the same chat in your own product, the [`windmill-chat`](https://www.npmjs.com/package/windmill-chat) npm package runs a deployed chat flow from any frontend, including a [full-code app](../full_code_apps/index.mdx).
+To put the same chat in your own product, the [`@windmill-labs/chat-sdk`](https://www.npmjs.com/package/@windmill-labs/chat-sdk) npm package runs a deployed chat flow from any frontend, including a [full-code app](../full_code_apps/index.mdx).
 It is headless: it starts a run per message, follows the answer as it streams, keeps the conversation history, and hands you state to render with your own components.
 
 ```bash
-npm install windmill-chat
+npm install @windmill-labs/chat-sdk
 ```
+
+The package was published as `windmill-chat` up to version 1.812.0. That name no longer receives releases: replace it with `@windmill-labs/chat-sdk` in your dependencies and imports.
 
 The package has no runtime dependencies and one entry point per UI stack:
 
 | You build the UI with | Import | You get |
 | --- | --- | --- |
-| [Vercel AI SDK](https://ai-sdk.dev/) `useChat`, AI Elements | `windmill-chat/ai-sdk` | A `ChatTransport` to pass to `useChat({ transport })` |
-| [assistant-ui](https://www.assistant-ui.com/) | `windmill-chat/assistant-ui` | A runtime for `AssistantRuntimeProvider`, with conversations as threads |
-| Your own React components | `windmill-chat/react` | The `useWindmillChat` hook, with messages, status and actions |
-| Another framework | `windmill-chat` | `createChat`, a store you subscribe to (it follows the Svelte store contract) |
+| [Vercel AI SDK](https://ai-sdk.dev/) `useChat`, AI Elements | `@windmill-labs/chat-sdk/ai-sdk` | A `ChatTransport` to pass to `useChat({ transport })` |
+| [assistant-ui](https://www.assistant-ui.com/) | `@windmill-labs/chat-sdk/assistant-ui` | A runtime for `AssistantRuntimeProvider`, with conversations as threads |
+| Your own React components | `@windmill-labs/chat-sdk/react` | The `useWindmillChat` hook, with messages, status and actions |
+| Another framework | `@windmill-labs/chat-sdk` | `createChat`, a store you subscribe to (it follows the Svelte store contract) |
 
 With the React hook, a minimal chat looks like this:
 
 ```tsx
 import { useState } from 'react';
-import { useWindmillChat } from 'windmill-chat/react';
+import { useWindmillChat } from '@windmill-labs/chat-sdk/react';
 
 export function Support() {
 	const chat = useWindmillChat({
