@@ -52,7 +52,7 @@ Sessions running on a fork are marked with a fork icon. From the sidebar you can
 The session chat is the [Windmill AI chat](../22_ai_generation/index.mdx#windmill-ai-chat) in its global mode, operating on the session's workspace. It can:
 
 - Create and edit scripts, flows and full-code apps. Changes are saved as your own drafts in the session's workspace, never deployed directly.
-- Test what it builds by running scripts, flow previews and individual steps as [background jobs](#background-jobs).
+- Test what it builds by running scripts, flow previews and individual steps as [background jobs](#background-jobs), through an [argument form](../22_ai_generation/index.mdx#running-scripts-and-flows) you confirm.
 - Open workspace pages for you in the preview panel: runs, schedules, variables, resources, assets, audit logs, triggers or workspace settings, with filters already applied (for example, the runs page filtered to a specific script). Pages the AI can open follow your permissions.
 - Answer questions about your workspace and about Windmill itself, with the same capabilities as the AI chat elsewhere (web search, Mermaid diagrams, API operations).
 - Write longer documents as [artifacts](#artifacts) instead of burying them in the conversation.
@@ -175,6 +175,9 @@ The active tab shows a breadcrumb that doubles as a router: click a segment to j
 When the AI creates, edits or previews an item, the tool call in the chat shows a Preview chip with the item's icon: click it to open the item's live preview in the panel, or focus its tab if it is already open.
 
 ![A tool call that saved an app draft, with its Preview chip on the right](./tool_preview_chip.png 'Tool-call Preview chip')
+
+A pending [run form](../22_ai_generation/index.mdx#running-scripts-and-flows) can be opened in the panel the same way, which is handy for an item with many arguments.
+Pressing Run there turns the tab into the run page for that job.
 
 ### Debugging full-code apps
 
