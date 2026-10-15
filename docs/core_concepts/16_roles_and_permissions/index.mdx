@@ -89,7 +89,7 @@ Operators have limited access within a workspace. They can execute and view scri
 
 What the Operator role restricts is **authoring and running code**. An operator cannot:
 
-- create, edit, archive or delete [scripts](../../getting_started/0_scripts_quickstart/index.mdx), [flows](../../getting_started/6_flows_quickstart/index.mdx) and [apps](../../getting_started/7_apps_quickstart/index.mdx);
+- create, edit, archive or delete [scripts](../../getting_started/0_scripts_quickstart/index.mdx), [flows](../../getting_started/6_flows_quickstart/index.mdx) and [apps](../../getting_started/7_apps_quickstart/index.mdx), unless a workspace grants them [builder rights](#builder-rights) for flows or full-code apps;
 - run previews (any code that is not an already-deployed script or flow) or dependency jobs;
 - [deploy to another workspace](../12_staging_prod/index.md): the deploy UI is closed to operators, and creating the script, flow or app on the target side is refused anyway.
 
@@ -110,7 +110,16 @@ From the workspace settings, you can configure the operator visibility settings 
 - [Folders](../8_groups_and_folders/index.mdx#folders)
 - [Workers](../9_worker_groups/index.mdx)
 
-Regarding to [Pricing](/pricing), operators are counted as half of a regular seat ([developers](#developer)) as long as they are operators in all workspaces they are members of. Operators are not set as the instance-level. On the billing side, 1 developer seat or 2 operator/[external JWT](../../advanced/16_external_auth_with_jwt/index.mdx) user seats count as 1 seat. Each unique external JWT user (counted per username/email + scope + instance, active in the last 30 days) also counts as half a seat. There is no need to differentiate between developers, operators and external JWT users when purchasing the license.
+Regarding to [Pricing](/pricing), operators are counted as half of a regular seat ([developers](#developer)) as long as they are operators in all workspaces they are members of and none of those workspaces grants [builder rights](#builder-rights). Operators are not set as the instance-level. On the billing side, 1 developer seat or 2 operator/[external JWT](../../advanced/16_external_auth_with_jwt/index.mdx) user seats count as 1 seat. Each unique external JWT user (counted per username/email + scope + instance, active in the last 30 days) also counts as half a seat. There is no need to differentiate between developers, operators and external JWT users when purchasing the license.
+
+#### Builder rights
+
+Under "Build flows and apps", the operator settings of the workspace carry two toggles, both off by default and granted independently. They let every operator of the workspace build on top of scripts and flows that are already deployed, wherever their [folder](../8_groups_and_folders/index.mdx) permissions already let them write. Operators still cannot write backend scripts, run previews of arbitrary code or [deploy to another workspace](../12_staging_prod/index.md).
+
+- "Operators can build flows": operators can create, edit and delete [flows](../../getting_started/6_flows_quickstart/index.mdx) whose steps all reference existing workspace scripts or flows. Inline scripts and Hub runnables are refused.
+- "Operators can build full-code apps": operators can create, edit and delete [full-code apps](../../full_code_apps/index.mdx), writing the app's frontend code themselves. The app's backend runnables must be existing workspace scripts or flows the operator can read. Low-code apps stay closed. An app built by an operator always has sandbox isolation on, so its code runs isolated from each viewer's Windmill session.
+
+Granting either right makes every operator of the workspace consume a full seat instead of half a seat. Granting both costs the same as granting one. The rights are part of the operator settings, so a [git sync](../../advanced/11_git_sync/index.mdx) pull can turn them on or off along with the rest of the workspace settings.
 
 ### Service accounts
 
